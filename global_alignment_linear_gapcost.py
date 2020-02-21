@@ -12,7 +12,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
 # Example call
-# python3 project2.py --C scoring_matrix.txt --P Y Seq1.fasta Seq2.fasta
+# python3 global_alignment_linear_gapcost.py --C scoring_matrix.txt --P Y Seq1.fasta Seq2.fasta
 
 # Default values
 cost = np.array([
