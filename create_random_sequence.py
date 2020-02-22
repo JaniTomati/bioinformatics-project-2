@@ -19,7 +19,7 @@ def create_random_sequence(n):
 
 
 def main():
-    n = [5, 10, 100, 1000, 10000, 100000]
+    n = [5, 10, 50, 100, 500, 1000, 2500, 5000, 7500, 10000] # edit sequence 
     sequences = []
 
     count = 0

@@ -113,6 +113,36 @@ def traceback(opt, seq1, seq2):
     return s1, s2
 
 
+def measure_times():
+    """ Use this method to measure times of the algorithms using sequences of different length """
+    sequences = []
+    sequence_length = [5, 10, 50, 100, 500, 1000, 2500, 5000, 7500, 10000] # edit sequence
+
+    for seq_record in SeqIO.parse("sequences/rand_sequences.fasta", "fasta"):
+        sequences.append((seq_record.seq))
+
+    times_opt = []
+    times_back = []
+    n = len(sequences)
+    i = 0
+    while i < n:
+        # measure optimal alignment algorithm
+        start_opt = time.time()
+        opt = optimal_alignment(sequences[i], sequences[i + 1])
+        end_opt = time.time()
+        times_opt.append(end_opt - start_opt)
+
+        # measure trace back algorithm
+        start_back = time.time()
+        aligned = traceback(opt, sequences[i], sequences[i + 1])
+        end_back = time.time()
+        times_back.append(end_back - start_back)
+        print("Round", i, "/", (n / 2))
+        i += 2
+
+    return times_opt, times_back
+
+
 def main():
     global gap_cost, cost
     # Arg parse
@@ -172,6 +202,11 @@ def main():
     SeqIO.write([record, record1], result_file, "fasta")
     print("Wrote results in fasta format to " +  result_file + ".")
 
+    # function for taking the performance measures
+    # times_opt, times_back = measure_times()
+    # print("Optimal alignment:", times_opt)
+    # print("Traceback", times_back)
+    
 
 if __name__ == '__main__':
     main()
