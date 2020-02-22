@@ -4,9 +4,6 @@
 import time
 import argparse
 import numpy as np
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -206,7 +203,7 @@ def main():
     # times_opt, times_back = measure_times()
     # print("Optimal alignment:", times_opt)
     # print("Traceback", times_back)
-    
+
 
 if __name__ == '__main__':
     main()
