@@ -116,13 +116,12 @@ def measure_times():
     sequence_length = [5, 10, 50, 100, 500, 1000, 2500, 5000, 7500, 10000] # edit sequence
 
     for seq_record in SeqIO.parse("sequences/rand_sequences.fasta", "fasta"):
-        sequences.append((seq_record.seq))
+        sequences.append(seq_record.seq.upper())
 
     times_opt = []
     times_back = []
-    n = len(sequences)
     i = 0
-    while i < n:
+    while i < len(sequences):
         # measure optimal alignment algorithm
         start_opt = time.time()
         opt = optimal_alignment(sequences[i], sequences[i + 1])
@@ -137,6 +136,24 @@ def measure_times():
         i += 2
 
     return times_opt, times_back
+
+
+def test_alignment_algorithm():
+    """ Test the alignment algorithm by using the sequences from the project2_examples.txt """
+    sequences = []
+
+    for seq_record in SeqIO.parse("sequences/test_sequences.fasta", "fasta"):
+        sequences.append((seq_record.seq).upper())
+
+    i = 0
+    while i < len(sequences):
+        opt = optimal_alignment(sequences[i], sequences[i + 1])
+        print("\nScore of the optimal global optimal_alignment: ", opt[len(sequences[i]), len(sequences[i + 1])])
+
+        aligned = traceback(opt, sequences[i], sequences[i + 1])
+        print(aligned[0], "\n" + aligned[1], "\n")
+        i += 2
+        break
 
 
 def main():
@@ -197,6 +214,9 @@ def main():
     result_file = "result_linear.fasta"
     SeqIO.write([record, record1], result_file, "fasta")
     print("Wrote results in fasta format to " +  result_file + ".")
+
+    # test alignment algorithm using examples
+    test_alignment_algorithm()
 
     # function for taking the performance measures
     # times_opt, times_back = measure_times()

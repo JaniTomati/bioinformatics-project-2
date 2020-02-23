@@ -8,6 +8,8 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+# Example call
+# python3 global_alignment_affine_gapcost.py --C scoring_matrix.txt --P Y Seq1.fasta Seq2.fasta
 
 # Default values
 cost = np.array([
@@ -122,7 +124,7 @@ def measure_times():
     sequence_length = [5, 10, 50, 100, 500, 1000, 2500, 5000, 7500, 10000] # edit sequence
 
     for seq_record in SeqIO.parse("sequences/rand_sequences.fasta", "fasta"):
-        sequences.append((seq_record.seq))
+        sequences.append((seq_record.seq).upper())
 
     times_aff = []
     times_back = []
@@ -144,6 +146,25 @@ def measure_times():
         i += 2
 
     return times_aff, times_back
+
+
+def test_alignment_algorithm():
+    """ Test the alignment algorithm by using the sequences from the project2_examples.txt """
+    sequences = []
+
+    print("\n----------------------- Tests -----------------------")
+
+    for seq_record in SeqIO.parse("sequences/test_sequences.fasta", "fasta"):
+        sequences.append((seq_record.seq).upper())
+
+    i = 0
+    while i < len(sequences):
+        opt = affine_alignment(sequences[i], sequences[i + 1], gap_cost[0], gap_cost[1])
+        print("\nScore of the optimal global optimal_alignment: ", opt[len(sequences[i]), len(sequences[i + 1])])
+
+        aligned = traceback(opt, sequences[i], sequences[i + 1], gap_cost[0], gap_cost[1])
+        print(aligned[0], "\n" + aligned[1], "\n")
+        i += 2
 
 
 def main():
@@ -203,6 +224,9 @@ def main():
     result_file = "result_affine.fasta"
     SeqIO.write([record, record1], result_file, "fasta")
     print("Wrote results in fasta format to " +  result_file + ".")
+
+    # test the alignment algorithm
+    test_alignment_algorithm()
 
     # function for taking the performance measures
     # times_aff, times_back = measure_times()
