@@ -63,7 +63,7 @@ def optimal_alignment(seq1, seq2):
                 align_matrix[i, j] = align_matrix[i, j-1] + gap_cost
 
             else:
-                val = max(
+                val = min(
                     align_matrix[i-1, j-1] + cost[look_up[seq2[i-1]], look_up[seq1[j-1]]],
                     align_matrix[i-1, j] + gap_cost,
                     align_matrix[i, j-1] + gap_cost
@@ -148,12 +148,11 @@ def test_alignment_algorithm():
     i = 0
     while i < len(sequences):
         opt = optimal_alignment(sequences[i], sequences[i + 1])
-        print("\nScore of the optimal global optimal_alignment: ", opt[len(sequences[i]), len(sequences[i + 1])])
+        print("\nScore of the optimal global optimal_alignment: ", opt[len(sequences[i + 1]), len(sequences[i])])
 
         aligned = traceback(opt, sequences[i], sequences[i + 1])
         print(aligned[0], "\n" + aligned[1], "\n")
         i += 2
-        break
 
 
 def main():
@@ -191,7 +190,7 @@ def main():
     start_opt = time.time()
     opt = optimal_alignment(seq1, seq2)
     end_opt = time.time()
-    print("\nScore of the optimal global optimal_alignment: ", opt[len(seq1), len(seq2)])
+    print("\nScore of the optimal global optimal_alignment: ", opt[len(seq2), len(seq1)])
     print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.\n")
 
     if print_statement == "y":
@@ -215,7 +214,7 @@ def main():
     print("Wrote results in fasta format to " +  result_file + ".")
 
     # test alignment algorithm using examples
-    # test_alignment_algorithm()
+    test_alignment_algorithm()
 
     # function for taking the performance measures
     # times_opt, times_back = measure_times()
