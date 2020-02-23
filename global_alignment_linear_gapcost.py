@@ -25,9 +25,8 @@ look_up = {"A": 0, "C": 1, "G": 2, "T":3}
 # Setting parameters
 def read_in_scoring_matrix(file):
     """ Read in the alphabet, scoring matrix and gap cost """
-    gapcost = None
-    scoring_matrix = []
     alphabet = []
+    scoring_matrix = []
 
     with open(file, "r") as f:
         lines = f.readlines()
@@ -47,7 +46,7 @@ def read_in_scoring_matrix(file):
                     row.append(int(char))
             scoring_matrix.append(row)
 
-    return (gapcost, alphabet, np.array(scoring_matrix))
+    return gapcost, np.array(scoring_matrix), alphabet
 
 
 # Optimal alignment
@@ -56,7 +55,7 @@ def optimal_alignment(seq1, seq2):
     align_matrix = np.zeros((n, m))
     for i in range(n):
         for j in range(m):
-            if j == 0 and i==0:
+            if j == 0 and i == 0:
                 align_matrix[i, j] = 0
             elif j == 0:
                 align_matrix[i, j] = align_matrix[i-1, j] + gap_cost
@@ -65,11 +64,12 @@ def optimal_alignment(seq1, seq2):
 
             else:
                 val = max(
-                    align_matrix[i-1, j-1]+cost[look_up[seq2[i-1]], look_up[seq1[j-1]]],
+                    align_matrix[i-1, j-1] + cost[look_up[seq2[i-1]], look_up[seq1[j-1]]],
                     align_matrix[i-1, j] + gap_cost,
                     align_matrix[i, j-1] + gap_cost
                 )
                 align_matrix[i, j] = val
+
     return align_matrix
 
 
@@ -171,10 +171,10 @@ def main():
     file = args.C
 
     if print_statement is not None:
-        print_statement = print_statement.lower() # so it is allways a small letter
+        print_statement = print_statement.lower() # lower case letters
 
     if file is not None:
-        gap_cost, alphabet, cost = read_in_scoring_matrix(file)
+        gap_cost, cost, alphabet = read_in_scoring_matrix(file)
 
     ### Running the Code ###
     seq_list1 = []
@@ -193,7 +193,6 @@ def main():
     end_opt = time.time()
     print("\nScore of the optimal global optimal_alignment: ", opt[len(seq1), len(seq2)])
     print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.\n")
-
 
     if print_statement == "y":
         start_back = time.time()
@@ -216,7 +215,7 @@ def main():
     print("Wrote results in fasta format to " +  result_file + ".")
 
     # test alignment algorithm using examples
-    test_alignment_algorithm()
+    # test_alignment_algorithm()
 
     # function for taking the performance measures
     # times_opt, times_back = measure_times()
