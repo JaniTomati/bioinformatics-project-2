@@ -8,6 +8,7 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
+
 # Default values
 cost = np.array([
     # A  C  G  T
@@ -51,21 +52,21 @@ def read_in_scoring_matrix(file):
 
 # Affine Alignment
 def affine_alignment(seq1, seq2, gap_start=5, gap_extend=5):
-    n=len(seq1) + 1
-    m=len(seq2) + 1
+    n = len(seq1) + 1
+    m = len(seq2) + 1
     S, D, I = np.zeros((n,m)), np.zeros((n,m)), np.zeros((n,m))
 
     for j in range(0,m):
         for i in range(0,n):
-            if i==0 and j==0:
+            if i == 0 and j == 0:
                 S[i,j] = 0
                 I[i,j] = gap_start
                 D[i,j] = gap_start
-            elif i==0:
+            elif i == 0:
                 I[i,j] = I[i,j-1] + gap_extend
                 S[i,j] = I[i,j]
                 D[i,j] = S[i,j]
-            elif j==0:
+            elif j == 0:
                 D[i,j] = D[i-1,j] + gap_extend
                 S[i,j] = D[i,j]
                 I[i,j] = S[i,j]
@@ -73,7 +74,7 @@ def affine_alignment(seq1, seq2, gap_start=5, gap_extend=5):
                 I[i,j]=min(I[i,j-1] + gap_extend,
                            S[i,j-1] + gap_start + gap_extend)
                 D[i,j]=min(D[i-1,j] + gap_extend,
-                           S[i-1,j] + gap_start+gap_extend)
+                           S[i-1,j] + gap_start + gap_extend)
                 S[i,j]=min(I[i,j],
                            D[i,j],
                            S[i-1,j-1] + cost[look_up[seq1[i-1]], look_up[seq2[j-1]]])
@@ -81,31 +82,31 @@ def affine_alignment(seq1, seq2, gap_start=5, gap_extend=5):
     return S
 
 
-def penalty(k, gap_extend=5, gap_start = 5):
-        return gap_start+k*gap_extend
+def penalty(k, gap_start, gap_extend):
+        return gap_start + k * gap_extend
 
 
-def traceback(matrix, seq1, seq2):
+def traceback(matrix, seq1, seq2, gap_start = 5, gap_extend = 5):
     i = len(seq1)
     j = len(seq2)
     align1 = ""
     align2 = ""
-    while i>0 and j>0:
+    while i > 0 and j > 0:
         if matrix[i,j] == matrix[i-1,j-1] + cost[look_up[seq1[i-1]], look_up[seq2[j-1]]]:
             align1 = str(seq1[i-1]) + align1
             align2 = str(seq2[j-1]) + align2
             i -= 1
             j -= 1
         else:
-            k=1
+            k = 1
             while True:
-                if matrix[i,j] == matrix[i,j-k] + penalty(k):
+                if matrix[i,j] == matrix[i,j-k] + penalty(k, gap_start, gap_extend):
                     align1 = "-" * k + align1
                     align2 = str(seq2[j-k:j]) + align2
                     j -= k
                     break
-                elif matrix[i,j] == matrix[i-k,j] + penalty(k):
-                    align1 = str(seq1[i-k:i])+align1
+                elif matrix[i,j] == matrix[i-k,j] + penalty(k, gap_start, gap_extend):
+                    align1 = str(seq1[i-k:i]) + align1
                     align2 = "-" * k + align2
                     i -= k
                     break
@@ -113,6 +114,36 @@ def traceback(matrix, seq1, seq2):
                     k += 1
 
     return align1, align2
+
+
+def measure_times():
+    """ Use this method to measure times of the algorithms using sequences of different length """
+    sequences = []
+    sequence_length = [5, 10, 50, 100, 500, 1000, 2500, 5000, 7500, 10000] # edit sequence
+
+    for seq_record in SeqIO.parse("sequences/rand_sequences.fasta", "fasta"):
+        sequences.append((seq_record.seq))
+
+    times_aff = []
+    times_back = []
+    n = len(sequences)
+    i = 0
+    while i < n:
+        # measure optimal alignment algorithm
+        start_aff = time.time()
+        aff = affine_alignment(sequences[i], sequences[i + 1], gapcost[0], gapcost[1])
+        end_aff = time.time()
+        times_aff.append(end_aff - start_aff)
+
+        # measure trace back algorithm
+        start_back = time.time()
+        aligned = traceback(aff, sequences[i], sequences[i + 1], gapcost[0], gapcost[1])
+        end_back = time.time()
+        times_back.append(end_back - start_back)
+        print("Round", i, "/", n)
+        i += 2
+
+    return times_aff, times_back
 
 
 def main():
@@ -150,12 +181,12 @@ def main():
     start_aff = time.time()
     aff = affine_alignment(seq1, seq2, gapcost[0], gapcost[1])
     end_aff = time.time()
-    print("\n", "Score of the optimal global optimal_alignment: ", aff[len(seq1), len(seq2)], "\n")
-    print("Calculating the optimal alignment took", end_aff - start_aff, "seconds.")
+    print("\nScore of the optimal global optimal_alignment: ", aff[len(seq1), len(seq2)])
+    print("Calculating the optimal alignment took", end_aff - start_aff, "seconds.\n")
 
     if print_statement == "y":
         start_back = time.time()
-        aligned = traceback(aff, seq1, seq2)
+        aligned = traceback(aff, seq1, seq2, gapcost[0], gapcost[1])
         end_back = time.time()
 
         #print("",aligned[0], "\n", aligned[1])
@@ -172,6 +203,11 @@ def main():
     result_file = "result_affine.fasta"
     SeqIO.write([record, record1], result_file, "fasta")
     print("Wrote results in fasta format to " +  result_file + ".")
+
+    # function for taking the performance measures
+    # times_aff, times_back = measure_times()
+    # print("Optimal alignment:", times_aff)
+    # print("Traceback", times_back)
 
 
 if __name__ == '__main__':

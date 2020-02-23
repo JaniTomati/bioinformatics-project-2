@@ -134,7 +134,6 @@ def measure_times():
         aligned = traceback(opt, sequences[i], sequences[i + 1])
         end_back = time.time()
         times_back.append(end_back - start_back)
-        print("Round", i, "/", (n / 2))
         i += 2
 
     return times_opt, times_back
@@ -175,8 +174,8 @@ def main():
     start_opt = time.time()
     opt = optimal_alignment(seq1, seq2)
     end_opt = time.time()
-    print("\n", "Score of the optimal global optimal_alignment: ", opt[len(seq1), len(seq2)], "\n")
-    print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.")
+    print("\nScore of the optimal global optimal_alignment: ", opt[len(seq1), len(seq2)])
+    print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.\n")
 
 
     if print_statement == "y":
