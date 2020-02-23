@@ -176,6 +176,8 @@ def main():
     opt = optimal_alignment(seq1, seq2)
     end_opt = time.time()
     print("\n", "Score of the optimal global optimal_alignment: ", opt[len(seq1), len(seq2)], "\n")
+    print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.")
+
 
     if print_statement == "y":
         start_back = time.time()
@@ -185,9 +187,7 @@ def main():
         #print("",aligned[0], "\n", aligned[1])
         print(aligned[0])
         print(aligned[1], "\n")
-
-    print("Calculating the optimal alignment took", end_opt - start_opt, "seconds.")
-    print("Calculating the traceback took", end_back - start_back, "seconds.\n")
+        print("Calculating the traceback took", end_back - start_back, "seconds.\n")
 
     ### Writing the aligned sequences into a fasta file ###
     record = SeqRecord(Seq(aligned[0]),
